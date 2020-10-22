@@ -8,8 +8,8 @@ from werkzeug.wrappers import Response
 
 # initialization
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'secret_key' #necesario para el form
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://irene:Ics_TFM2020@192.168.0.101:3306/dbprueba'
+app.config['SECRET_KEY'] = 'secret_key'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://user:dbpass@ip_address:port/dbname'
 app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 
