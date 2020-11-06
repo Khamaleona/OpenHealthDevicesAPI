@@ -23,17 +23,60 @@ db.create_all()
 
 #Routes
 #GET Data
-@app.route('/getData/all', methods=['GET'])
-def getDataAll():
+@app.route('/getData/all/<string:form>', methods=['GET'])
+def getDataAll(form):
     data = Diabetes.query.all()
-    return jsonify(data=[d.serialize for d in data])
+    if form == "json":
+        return jsonify(data=[d.serialize for d in data])
+    elif form == "csv":
+        output = StringIO()
+        writer = csv.writer(output)
+        line = ['sensor, value, created']
+        writer.writerow(line)
+
+        for row in data:
+            line = [str(row.sensor) + ", " + str(row.value) + ", " + str(row.date)]
+            writer.writerow(line)
+
+        output.seek(0)
+        return Response(output, mimetype="text/csv",
+                        headers={"Content-Disposition": "attachment;filename=sensors_data.csv"})
+    else:
+        return "<h1>ERROR, YOU NEED TO INDICATE THE RIGHT FORMAT (JSON OR CSV)</h1>"
 
 
-@app.route('/getData/<int:sensor>', methods=['GET'])
-def getData(sensor):
+@app.route('/getData/<int:sensor>/<string:form>', methods=['GET'])
+def getData(sensor, form):
     if 0 <= sensor < 4:
         data = Diabetes.query.filter_by(sensor=sensor).all()
-        return jsonify(data=[d.serialize for d in data])
+        if form == "json":
+            return jsonify(data=[d.serialize for d in data])
+        elif form == "csv":
+            output = StringIO()
+            writer = csv.writer(output)
+            line = ['value, created']
+            writer.writerow(line)
+
+            for row in data:
+                line = [str(row.value) + ", " + str(row.date)]
+                writer.writerow(line)
+
+            output.seek(0)
+
+            fileName = "";
+            if sensor == 0:
+                fileName = "temperatures.csv"
+            if sensor == 1:
+                fileName = "galvanics.csv"
+            if sensor == 2:
+                fileName = "heartRates.csv"
+            if sensor == 3:
+                fileName = "oxygens.csv"
+
+            return Response(output, mimetype="text/csv",
+                            headers={"Content-Disposition": "attachment;filename=" + fileName})
+        else:
+            return "<h1>ERROR, YOU NEED TO INDICATE THE RIGHT FORMAT (JSON OR CSV)</h1>"
     else:
         return "<h1>ERROR, THERE IS NO SUCH SENSOR TYPE</h1>"
 
@@ -54,34 +97,6 @@ def addData():
     else:
         return "<h1>Welcome to webserver! GET addData request sucess!!</h1>"
 
-#Downloading Data
-@app.route('/download/<int:sensor>')
-def downloadData(sensor):
-    if 0 <= sensor < 4:
-        data = Diabetes.query.filter_by(sensor=sensor).all()
-        output = StringIO()
-        writer = csv.writer(output)
-        line = ['value, created']
-        writer.writerow(line)
-
-        for row in data:
-            line = [str(row.value)+", " + str(row.date)]
-            writer.writerow(line)
-
-        output.seek(0)
-
-        fileName = "";
-        if sensor == 0:
-            fileName = "temperatures.csv"
-        if sensor == 1:
-            fileName = "galvanics.csv"
-        if sensor == 2:
-            fileName = "heartRates.csv"
-        if sensor == 3:
-            fileName = "oxygens.csv"
-
-        return Response(output, mimetype="text/csv",
-                        headers={"Content-Disposition": "attachment;filename="+fileName})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8008)
