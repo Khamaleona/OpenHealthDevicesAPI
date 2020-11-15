@@ -9,9 +9,8 @@ from werkzeug.wrappers import Response
 # initialization
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret_key'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://user:dbpass@ip_address:port/dbname'
-app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://irene:Ics_TFM2020@192.168.1.102:3306/dbprueba'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # database
 db = SQLAlchemy(app)
@@ -95,7 +94,7 @@ def addData():
         db.session.commit()
         return newData.serialize
     else:
-        return "<h1>Welcome to webserver! GET addData request sucess!!</h1>"
+        return "<h1>Welcome to webserver!!</h1>"
 
 
 if __name__ == '__main__':
